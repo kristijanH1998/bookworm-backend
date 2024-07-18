@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -8,12 +11,25 @@ require('dotenv').config();
 
 const port = process.env.PORT;
 
+const corsOptions = {
+  origin: '*', 
+  credentials: true,  
+  'access-control-allow-credentials': true,
+  optionSuccessStatus: 200,
+}
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME
 });
+
+app.use(cors(corsOptions));
+
+app.use(bodyParser.json());
+
+// app.use(express.json());
 
 app.use(async function(req, res, next) {
   try {
@@ -34,9 +50,9 @@ app.use(async function(req, res, next) {
   }
 });
 
-app.use(cors());
 
-app.use(express.json());
+// These endpoints can be reached without needing a JWT
+
 
 app.get('/cars', async function(req, res) {
   try {
@@ -49,16 +65,125 @@ app.get('/cars', async function(req, res) {
   }
 });
 
-app.use(async function(req, res, next) {
-  try {
-    console.log('Middleware after the get /cars');
+// app.use(async function(req, res, next) {
+//   try {
+//     console.log('Middleware after the get /cars');
   
-    await next();
+//     await next();
 
+//   } catch (err) {
+
+//   }
+// });
+
+
+
+// Hashes the password and inserts the info into the `user` table
+app.post('/register', async function (req, res) {
+  try {
+    const { password, username, userIsAdmin } = req.body;
+
+    const isAdmin = userIsAdmin ? 1 : 0;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const [user] = await req.db.query(
+      `INSERT INTO user (user_name, password, admin_flag) 
+      VALUES (:username, :hashedPassword, :userIsAdmin);`,
+      { 
+        username,
+        hashedPassword,
+        userIsAdmin: isAdmin
+      }
+    );
+
+    const jwtEncodedUser = jwt.sign(
+      { userId: user.insertId, ...req.body, userIsAdmin: isAdmin },
+      process.env.JWT_KEY
+    );
+
+    console.log('jwtEncodedUser', jwtEncodedUser);
+
+    res.json({ jwt: jwtEncodedUser, success: true });
   } catch (err) {
-
+    console.log('error', err);
+    res.json({ err, success: false });
   }
 });
+
+app.post('/log-in', async function (req, res) {
+  try {
+    const { username, password: userEnteredPassword } = req.body;
+
+    const [[user]] = await req.db.query(`SELECT * FROM user WHERE user_name = :username`, { username });
+
+    if (!user) res.json('Username not found');
+  
+    const hashedPassword = `${user.password}`
+    const passwordMatches = await bcrypt.compare(userEnteredPassword, hashedPassword);
+
+    if (passwordMatches) {
+      const payload = {
+        userId: user.id,
+        username: user.username,
+        userIsAdmin: user.admin_flag
+      }
+      
+      const jwtEncodedUser = jwt.sign(payload, process.env.JWT_KEY);
+
+      res.json({ jwt: jwtEncodedUser, success: true });
+    } else {
+      res.json({ err: 'Password is wrong', success: false });
+    }
+  } catch (err) {
+    console.log('Error in /authenticate', err);
+  }
+});
+
+
+
+
+
+
+
+
+// Jwt verification checks to see if there is an authorization header with a valid jwt in it.
+// To hit any of the endpoints below this function, all requests have to first pass this verification 
+// middleware function before they can be processed successfully and return a response
+app.use(async function verifyJwt(req, res, next) {
+  const { authorization: authHeader } = req.headers;
+  
+  if (!authHeader) res.json('Invalid authorization, no authorization headers');
+
+  const [scheme, jwtToken] = authHeader.split(' ');
+
+  if (scheme !== 'Bearer') res.json('Invalid authorization, invalid authorization scheme');
+
+  try {
+    const decodedJwtObject = jwt.verify(jwtToken, process.env.JWT_KEY);
+
+    req.user = decodedJwtObject;
+  } catch (err) {
+    console.log(err);
+    if (
+      err.message && 
+      (err.message.toUpperCase() === 'INVALID TOKEN' || 
+      err.message.toUpperCase() === 'JWT EXPIRED')
+    ) {
+
+      req.status = err.status || 500;
+      req.body = err.message;
+      req.app.emit('jwt-error', err, req);
+    } else {
+
+      throw((err.status || 500), err.message);
+    }
+  }
+
+  await next();
+});
+
+
 
 app.post('/car', async function(req, res) {
   try {
