@@ -154,7 +154,7 @@ app.use(async function verifyJwt(req, res, next) {
   const { authorization: authHeader } = req.headers;
   
   if (!authHeader) res.json('Invalid authorization, no authorization headers');
-
+  
   const [scheme, jwtToken] = authHeader.split(' ');
 
   if (scheme !== 'Bearer') res.json('Invalid authorization, invalid authorization scheme');
