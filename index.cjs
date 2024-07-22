@@ -123,7 +123,7 @@ app.post('/log-in', async function (req, res) {
 
     if (!user) {
       return res.status(400).json({
-        error: 'Email not found',
+        error: 'Email not found', success: false
       });
     }
   
@@ -139,7 +139,7 @@ app.post('/log-in', async function (req, res) {
       const jwtEncodedUser = jwt.sign(payload, process.env.JWT_KEY);
       res.status(200).json({ jwt: jwtEncodedUser, success: true });
     } else {
-      res.status(400).json({ err: 'Password is wrong', success: false });
+      res.status(400).json({ error: 'Password is wrong', success: false });
     }
   } catch (err) {
     console.log('Error in /authenticate', err);
