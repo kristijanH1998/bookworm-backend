@@ -121,7 +121,11 @@ app.post('/log-in', async function (req, res) {
 
     const [[user]] = await req.db.query(`SELECT * FROM user WHERE email = :email`, { email });
 
-    if (!user) res.json('Email not found');
+    if (!user) {
+      return res.status(400).json({
+        error: 'Email not found',
+      });
+    }
   
     const hashedPassword = `${user.password}`
     const passwordMatches = await bcrypt.compare(userEnteredPassword, hashedPassword);
@@ -132,15 +136,14 @@ app.post('/log-in', async function (req, res) {
         email: user.email,
         userIsAdmin: user.admin_flag
       }
-      
       const jwtEncodedUser = jwt.sign(payload, process.env.JWT_KEY);
-
-      res.json({ jwt: jwtEncodedUser, success: true });
+      res.status(200).json({ jwt: jwtEncodedUser, success: true });
     } else {
-      res.json({ err: 'Password is wrong', success: false });
+      res.status(400).json({ err: 'Password is wrong', success: false });
     }
   } catch (err) {
     console.log('Error in /authenticate', err);
+    res.status(400).json({ err, success: false });
   }
 });
 
@@ -179,7 +182,6 @@ app.use(async function verifyJwt(req, res, next) {
       req.body = err.message;
       req.app.emit('jwt-error', err, req);
     } else {
-
       throw((err.status || 500), err.message);
     }
   }
