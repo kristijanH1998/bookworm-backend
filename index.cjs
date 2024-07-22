@@ -81,19 +81,23 @@ app.get('/cars', async function(req, res) {
 // Hashes the password and inserts the info into the `user` table
 app.post('/register', async function (req, res) {
   try {
-    const { password, username, userIsAdmin } = req.body;
+    const { password, username, userIsAdmin, email, firstName, lastName, dateOfBirth } = req.body;
 
     const isAdmin = userIsAdmin ? 1 : 0;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [user] = await req.db.query(
-      `INSERT INTO user (user_name, password, admin_flag) 
-      VALUES (:username, :hashedPassword, :userIsAdmin);`,
+      `INSERT INTO user (user_name, password, admin_flag, email, first_name, last_name, date_of_birth) 
+      VALUES (:username, :hashedPassword, :userIsAdmin, :email, :firstName, :lastName, :dateOfBirth);`,
       { 
         username,
         hashedPassword,
-        userIsAdmin: isAdmin
+        userIsAdmin: isAdmin,
+        email, 
+        firstName, 
+        lastName, 
+        dateOfBirth
       }
     );
 
@@ -113,11 +117,11 @@ app.post('/register', async function (req, res) {
 
 app.post('/log-in', async function (req, res) {
   try {
-    const { username, password: userEnteredPassword } = req.body;
+    const { email, password: userEnteredPassword } = req.body;
 
-    const [[user]] = await req.db.query(`SELECT * FROM user WHERE user_name = :username`, { username });
+    const [[user]] = await req.db.query(`SELECT * FROM user WHERE email = :email`, { email });
 
-    if (!user) res.json('Username not found');
+    if (!user) res.json('Email not found');
   
     const hashedPassword = `${user.password}`
     const passwordMatches = await bcrypt.compare(userEnteredPassword, hashedPassword);
@@ -125,7 +129,7 @@ app.post('/log-in', async function (req, res) {
     if (passwordMatches) {
       const payload = {
         userId: user.id,
-        username: user.username,
+        email: user.email,
         userIsAdmin: user.admin_flag
       }
       
