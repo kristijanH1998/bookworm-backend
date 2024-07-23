@@ -83,6 +83,22 @@ app.post('/register', async function (req, res) {
   try {
     const { password, username, userIsAdmin, email, firstName, lastName, dateOfBirth } = req.body;
 
+    const [[userEmail]] = await req.db.query(`SELECT email FROM user WHERE email = :email`, { email });
+    
+    if (userEmail) {
+      return res.status(400).json({
+        error: 'Email already in use.', success: false
+      });
+    }
+    
+    const [[userName]] = await req.db.query(`SELECT user_name FROM user WHERE user_name = :username`, { username });
+
+    if (userName) {
+      return res.status(400).json({
+        error: 'Username already in use.', success: false
+      });
+    }
+
     const isAdmin = userIsAdmin ? 1 : 0;
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -106,12 +122,12 @@ app.post('/register', async function (req, res) {
       process.env.JWT_KEY
     );
 
-    console.log('jwtEncodedUser', jwtEncodedUser);
+    // console.log('jwtEncodedUser', jwtEncodedUser);
 
-    res.json({ jwt: jwtEncodedUser, success: true });
+    res.status(200).json({ jwt: jwtEncodedUser, success: true });
   } catch (err) {
-    console.log('error', err);
-    res.json({ err, success: false });
+    // console.log('error', err);
+    res.status(400).json({ error: 'Registration failed. Please try again.', success: false });
   }
 });
 
@@ -142,7 +158,7 @@ app.post('/log-in', async function (req, res) {
       res.status(400).json({ error: 'Password is wrong', success: false });
     }
   } catch (err) {
-    console.log('Error in /authenticate', err);
+    // console.log('Error in /authenticate', err);
     res.status(400).json({ err, success: false });
   }
 });
@@ -171,7 +187,7 @@ app.use(async function verifyJwt(req, res, next) {
 
     req.user = decodedJwtObject;
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     if (
       err.message && 
       (err.message.toUpperCase() === 'INVALID TOKEN' || 
