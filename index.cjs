@@ -164,16 +164,11 @@ app.post('/log-in', async function (req, res) {
 });
 
 
-
-
-
-
-
-
 // Jwt verification checks to see if there is an authorization header with a valid jwt in it.
 // To hit any of the endpoints below this function, all requests have to first pass this verification 
 // middleware function before they can be processed successfully and return a response
 app.use(async function verifyJwt(req, res, next) {
+  // console.log(req.headers)
   const { authorization: authHeader } = req.headers;
   
   if (!authHeader) res.json('Invalid authorization, no authorization headers');
@@ -186,6 +181,7 @@ app.use(async function verifyJwt(req, res, next) {
     const decodedJwtObject = jwt.verify(jwtToken, process.env.JWT_KEY);
 
     req.user = decodedJwtObject;
+    // console.log("verification successful")
   } catch (err) {
     // console.log(err);
     if (
@@ -205,7 +201,13 @@ app.use(async function verifyJwt(req, res, next) {
   await next();
 });
 
-
+app.get('/log-out', async function (req, res) {
+  try {
+    res.status(200).json({ message: "Successfully signed out.", success: true });
+  } catch (err) {
+    res.status(400).json({ err, success: false });
+  }
+});
 
 app.post('/car', async function(req, res) {
   try {
