@@ -258,4 +258,25 @@ app.put('/car', async function(req,res) {
 });
 
 
+app.get('/search-books', async function (req, res) {
+  try {
+    const searchTerms = req.body;
+
+    const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=inauthor:${searchTerms['search-terms'][0]}`, {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json'
+      }
+    }) 
+    const data = await response.json();
+
+    // console.log(searchTerms['search-terms'][0])
+
+    console.log(data)
+    res.status(200).json({ message: "Search successful.", success: true });
+  } catch (err) {
+    res.status(400).json({ err, success: false });
+  }
+});
+
 app.listen(port, () => console.log(`212 API Example listening on http://localhost:${port}`));
