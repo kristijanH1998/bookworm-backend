@@ -181,7 +181,8 @@ app.use(async function verifyJwt(req, res, next) {
     const decodedJwtObject = jwt.verify(jwtToken, process.env.JWT_KEY);
 
     req.user = decodedJwtObject;
-    // console.log("verification successful")
+    console.log(jwtToken)
+    console.log(decodedJwtObject)
   } catch (err) {
     // console.log(err);
     if (
@@ -275,7 +276,9 @@ app.get('/search-books', async function (req, res) {
       }) 
     } else {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:` + 
-        `${searchParams['search-terms'][0]}&fields=items/volumeInfo(title,authors,industryIdentifiers)`, {
+        `${searchParams['search-terms'][0]}&fields=items/id,items/volumeInfo` + 
+        `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
+        `description,imageLinks,pageCount,language)`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
