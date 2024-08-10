@@ -260,18 +260,30 @@ app.put('/car', async function(req,res) {
 
 app.get('/search-books', async function (req, res) {
   try {
-    const searchTerms = req.body;
-
-    const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=inauthor:` + 
-      `${searchTerms['search-terms'][0]}&fields=items/volumeInfo(title,authors,industryIdentifiers)`, {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept-Encoding': 'gzip',
-        'User-Agent': 'my program (gzip)'
-
-      }
-    }) 
+    const searchParams = req.body;
+    let response;
+    // console.log(searchParams['criteria']);
+    if(searchParams['criteria'] === 'author' || searchParams['criteria'] === 'title') {
+      response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
+        `${searchParams['search-terms'][0]}&fields=items/volumeInfo(title,authors,industryIdentifiers)`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept-Encoding': 'gzip',
+          'User-Agent': 'my program (gzip)'
+        }
+      }) 
+    } else {
+      response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:` + 
+        `${searchParams['search-terms'][0]}&fields=items/volumeInfo(title,authors,industryIdentifiers)`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept-Encoding': 'gzip',
+          'User-Agent': 'my program (gzip)'
+        }
+      }) 
+    }
     const data = await response.json();
     console.log(JSON.stringify(data, null, 2))
     res.status(200).json({ message: "Search successful.", success: true });
