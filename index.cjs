@@ -264,9 +264,21 @@ app.get('/search-books', async function (req, res) {
     const searchParams = req.body;
     let response;
     // console.log(searchParams['criteria']);
+    // console.log(searchParams['search-terms'][0]);
+
+    // formatting the request body content by replacing whitespaces with '+' symbols to make it compatible
+    // with the URL syntax
+    searchParams['search-terms'][0] = searchParams['search-terms'][0].replace(/ /g, '+');
+    // console.log(searchParams['search-terms'][0]);
+    // console.log(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
+    //     `${searchParams['search-terms'][0]}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
+    //     `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
+    //     `description,imageLinks,pageCount,language)`);
     if(searchParams['criteria'] === 'author' || searchParams['criteria'] === 'title') {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
-        `${searchParams['search-terms'][0]}&fields=items/volumeInfo(title,authors,industryIdentifiers)`, {
+        `${searchParams['search-terms'][0]}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
+        `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
+        `description,imageLinks,pageCount,language)`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -276,7 +288,7 @@ app.get('/search-books', async function (req, res) {
       }) 
     } else {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:` + 
-        `${searchParams['search-terms'][0]}&fields=items/id,items/volumeInfo` + 
+        `${searchParams['search-terms'][0]}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
         `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
         `description,imageLinks,pageCount,language)`, {
         method: 'GET',
