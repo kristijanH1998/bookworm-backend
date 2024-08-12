@@ -261,22 +261,20 @@ app.put('/car', async function(req,res) {
 
 app.get('/search-books', async function (req, res) {
   try {
-    const searchParams = req.body;
+    const searchParams = req.query;
+    // console.log(searchParams)
+    // console.log(searchParams['search-terms'])
     let response;
-    // console.log(searchParams['criteria']);
-    // console.log(searchParams['search-terms'][0]);
-
     // formatting the request body content by replacing whitespaces with '+' symbols to make it compatible
     // with the URL syntax
-    searchParams['search-terms'][0] = searchParams['search-terms'][0].replace(/ /g, '+');
-    // console.log(searchParams['search-terms'][0]);
+    searchParams['search-terms'] = searchParams['search-terms'].replace(/ /g, '+');
     // console.log(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
-    //     `${searchParams['search-terms'][0]}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
+    //     `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
     //     `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
     //     `description,imageLinks,pageCount,language)`);
     if(searchParams['criteria'] === 'author' || searchParams['criteria'] === 'title') {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
-        `${searchParams['search-terms'][0]}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
+        `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
         `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
         `description,imageLinks,pageCount,language)`, {
         method: 'GET',
@@ -288,7 +286,7 @@ app.get('/search-books', async function (req, res) {
       }) 
     } else {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:` + 
-        `${searchParams['search-terms'][0]}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
+        `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
         `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
         `description,imageLinks,pageCount,language)`, {
         method: 'GET',
@@ -301,7 +299,7 @@ app.get('/search-books', async function (req, res) {
     }
     const data = await response.json();
     console.log(JSON.stringify(data, null, 2))
-    res.status(200).json({ message: "Search successful.", success: true });
+    res.status(200).json({ message: "Search successful.", success: true, data: data });
   } catch (err) {
     res.status(400).json({ err, success: false });
   }
