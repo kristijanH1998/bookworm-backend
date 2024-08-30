@@ -258,6 +258,8 @@ app.put('/car', async function(req,res) {
   }
 });
 
+const apiKey = process.env.API_KEY;
+
 //IMPLEMENT PAGINATION FOR VOLUMES LIST!
 app.get('/search-books', async function (req, res) {
   try {
@@ -276,7 +278,7 @@ app.get('/search-books', async function (req, res) {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
         `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
         `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
-        `description,imageLinks,pageCount,language)`, {
+        `description,imageLinks,pageCount,language)&key=${apiKey}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -288,7 +290,7 @@ app.get('/search-books', async function (req, res) {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:` + 
         `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
         `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
-        `description,imageLinks,pageCount,language)`, {
+        `description,imageLinks,pageCount,language)&key=${apiKey}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
