@@ -278,7 +278,7 @@ app.get('/search-books', async function (req, res) {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
         `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
         `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
-        `description,imageLinks,pageCount,language)&key=${apiKey}`, {
+        `description,imageLinks,pageCount,language)&startIndex=${searchParams['page']}&key=${apiKey}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -290,7 +290,7 @@ app.get('/search-books', async function (req, res) {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:` + 
         `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
         `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
-        `description,imageLinks,pageCount,language)&key=${apiKey}`, {
+        `description,imageLinks,pageCount,language)&startIndex=${searchParams['page']}&key=${apiKey}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -300,7 +300,7 @@ app.get('/search-books', async function (req, res) {
       }) 
     }
     const data = await response.json();
-    console.log(JSON.stringify(data, null, 2))
+    // console.log(JSON.stringify(data, null, 2))
     res.status(200).json({ message: "Search successful.", success: true, data: data });
   } catch (err) {
     res.status(400).json({ err, success: false });
