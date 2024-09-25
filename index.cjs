@@ -260,7 +260,6 @@ app.put('/car', async function(req,res) {
 
 const apiKey = process.env.API_KEY;
 
-//IMPLEMENT PAGINATION FOR VOLUMES LIST!
 app.get('/search-books', async function (req, res) {
   try {
     const searchParams = req.query;
@@ -304,6 +303,27 @@ app.get('/search-books', async function (req, res) {
     res.status(200).json({ message: "Search successful.", success: true, data: data });
   } catch (err) {
     res.status(400).json({ err, success: false });
+  }
+});
+
+app.post('/favorite', async function(req, res) {
+  try {
+    const { title, author, publisher, year, identifier, thumbnail } = req.body.data;
+    console.log(title, author, publisher, year, identifier, thumbnail);
+
+    // const query = await req.db.query(
+    //   `INSERT INTO car (make, model, year) 
+    //    VALUES (:make, :model, :year)`,
+    //   {
+    //     make,
+    //     model,
+    //     year,
+    //   }
+    // );
+  
+    res.json({ success: true, message: 'Car successfully created', data: null });
+  } catch (err) {
+    res.json({ success: false, message: err, data: null })
   }
 });
 
