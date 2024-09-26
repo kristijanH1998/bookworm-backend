@@ -309,19 +309,17 @@ app.get('/search-books', async function (req, res) {
 app.post('/favorite', async function(req, res) {
   try {
     const { title, author, publisher, year, identifier, thumbnail } = req.body.data;
-    console.log(title, author, publisher, year, identifier, thumbnail);
+    // console.log(title, author, publisher, year, identifier, thumbnail);
 
-    // const query = await req.db.query(
-    //   `INSERT INTO car (make, model, year) 
-    //    VALUES (:make, :model, :year)`,
-    //   {
-    //     make,
-    //     model,
-    //     year,
-    //   }
-    // );
+    const query = await req.db.query(
+      `INSERT INTO favorite (title, author, publisher, year, identifier, thumbnail) 
+       VALUES (:title, :author, :publisher, :year, :identifier, :thumbnail)`,
+      {
+        title, author, publisher, year, identifier, thumbnail
+      }
+    );
   
-    res.json({ success: true, message: 'Car successfully created', data: null });
+    res.json({ success: true, message: 'Favorite book successfully created', data: null });
   } catch (err) {
     res.json({ success: false, message: err, data: null })
   }
