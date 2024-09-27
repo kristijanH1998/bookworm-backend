@@ -50,9 +50,7 @@ app.use(async function(req, res, next) {
   }
 });
 
-
 // These endpoints can be reached without needing a JWT
-
 
 app.get('/cars', async function(req, res) {
   try {
@@ -183,6 +181,7 @@ app.use(async function verifyJwt(req, res, next) {
     req.user = decodedJwtObject;
     console.log(jwtToken)
     console.log(decodedJwtObject)
+    // console.log(jwt.verify(jwtToken, process.env.JWT_KEY)["email"]);
   } catch (err) {
     // console.log(err);
     if (
@@ -308,14 +307,17 @@ app.get('/search-books', async function (req, res) {
 
 app.post('/favorite', async function(req, res) {
   try {
-    const { title, author, publisher, year, identifier, thumbnail } = req.body.data;
+    const { title, author, publisher, year, identifier, thumbnail} = req.body.data;
+    //two lines below take the JWT token from request authorization header, and then extract user email from the JWT
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const user = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     // console.log(title, author, publisher, year, identifier, thumbnail);
 
     const query = await req.db.query(
-      `INSERT INTO favorite (title, author, publisher, year, identifier, thumbnail) 
-       VALUES (:title, :author, :publisher, :year, :identifier, :thumbnail)`,
+      `INSERT INTO favorite (title, author, publisher, year, identifier, thumbnail, user) 
+       VALUES (:title, :author, :publisher, :year, :identifier, :thumbnail, :user)`,
       {
-        title, author, publisher, year, identifier, thumbnail
+        title, author, publisher, year, identifier, thumbnail, user
       }
     );
   
