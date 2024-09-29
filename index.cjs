@@ -305,23 +305,23 @@ app.get('/search-books', async function (req, res) {
   }
 });
 
-app.post('/favorite', async function(req, res) {
+app.post('/add-to-list', async function(req, res) {
   try {
-    const { title, author, publisher, year, identifier, thumbnail} = req.body.data;
+    const { title, author, publisher, year, identifier, thumbnail, table} = req.body.data;
     //two lines below take the JWT token from request authorization header, and then extract user email from the JWT
     const jwtToken = req.headers.authorization.split(' ')[1];
     const user = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
-    // console.log(title, author, publisher, year, identifier, thumbnail);
-
+    // console.log(title, author, publisher, year, identifier, thumbnail, table);
+    //console.log(table);
+    //name of the table into which the record will be inserted equals the string 'table' received from frontend
     const query = await req.db.query(
-      `INSERT INTO favorite (title, author, publisher, year, identifier, thumbnail, user) 
+      `INSERT INTO ` + table + ` (title, author, publisher, year, identifier, thumbnail, user) 
        VALUES (:title, :author, :publisher, :year, :identifier, :thumbnail, :user)`,
       {
         title, author, publisher, year, identifier, thumbnail, user
       }
     );
-  
-    res.json({ success: true, message: 'Favorite book successfully created', data: null });
+    res.json({ success: true, message: 'Book successfully added to' + table, data: null });
   } catch (err) {
     res.json({ success: false, message: err, data: null })
   }
