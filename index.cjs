@@ -327,4 +327,39 @@ app.post('/add-to-list', async function(req, res) {
   }
 });
 
+app.get('/fav-books', async function(req, res) {
+  try {
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
+    const [favorites] = await req.db.query(`SELECT * FROM favorite WHERE user=:userEmail`, {userEmail});
+    // console.log(favorites)
+    res.json(favorites);
+  } catch (err) {
+    res.json({ success: false, message: err, data: null })
+  }
+});
+
+app.get('/finished-books', async function(req, res) {
+  try {
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
+    const [finishedBooks] = await req.db.query(`SELECT * FROM finished_reading WHERE user=:userEmail`, {userEmail});
+    // console.log(finishedBooks)
+    res.json(finishedBooks);
+  } catch (err) {
+    res.json({ success: false, message: err, data: null })
+  }
+});
+
+app.get('/wishlist', async function(req, res) {
+  try {
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
+    const [wishlist] = await req.db.query(`SELECT * FROM wishlist WHERE user=:userEmail`, {userEmail});
+    res.json(wishlist);
+  } catch (err) {
+    res.json({ success: false, message: err, data: null })
+  }
+});
+
 app.listen(port, () => console.log(`212 API Example listening on http://localhost:${port}`));
