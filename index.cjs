@@ -333,7 +333,7 @@ app.get('/fav-books', async function(req, res) {
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const [favorites] = await req.db.query(`SELECT * FROM favorite WHERE user=:userEmail`, {userEmail});
     // console.log(favorites)
-    res.json(favorites);
+    res.json({ success: true, message: 'Favorites successfully returned', data: favorites });
   } catch (err) {
     res.json({ success: false, message: err, data: null })
   }
