@@ -345,7 +345,7 @@ app.get('/finished-books', async function(req, res) {
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const [finishedBooks] = await req.db.query(`SELECT * FROM finished_reading WHERE user=:userEmail`, {userEmail});
     // console.log(finishedBooks)
-    res.json(finishedBooks);
+    res.json({ success: true, message: 'Previously read books successfully returned', data: finishedBooks });
   } catch (err) {
     res.json({ success: false, message: err, data: null })
   }
@@ -356,7 +356,7 @@ app.get('/wishlist', async function(req, res) {
     const jwtToken = req.headers.authorization.split(' ')[1];
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const [wishlist] = await req.db.query(`SELECT * FROM wishlist WHERE user=:userEmail`, {userEmail});
-    res.json(wishlist);
+    res.json({ success: true, message: 'List of books planned to read successfully returned', data: wishlist });
   } catch (err) {
     res.json({ success: false, message: err, data: null })
   }
