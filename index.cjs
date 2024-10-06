@@ -237,7 +237,6 @@ app.delete('/car/:id', async function(req,res) {
       `UPDATE car SET deleted_flag = 1 WHERE id = :id`,
       { id }
     );
-
     res.json({ success: true, message: 'Car successfully deleted', data: null })
   } catch (err) {
     res.json({ success: false, message: err, data: null })
@@ -358,7 +357,21 @@ app.get('/wishlist', async function(req, res) {
     const [wishlist] = await req.db.query(`SELECT * FROM wishlist WHERE user=:userEmail`, {userEmail});
     res.json({ success: true, message: 'List of books planned to read successfully returned', data: wishlist });
   } catch (err) {
-    res.json({ success: false, message: err, data: null })
+    res.json({ success: false, message: err, data: null });
+  }
+});
+
+app.delete('/delete', async function(req,res) {
+  try {
+    const { identifier, table, user } = req.body;
+    console.log(identifier, table, user);
+    const query = await req.db.query(
+      `DELETE FROM ` + table + ` WHERE identifier = :identifier AND user = :user`,
+      { table, identifier, user }
+    );
+    res.json({ success: true, message: 'Book successfully deleted', data: null });
+  } catch (err) {
+    res.json({ success: false, message: err, data: null });
   }
 });
 
