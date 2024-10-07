@@ -179,8 +179,8 @@ app.use(async function verifyJwt(req, res, next) {
     const decodedJwtObject = jwt.verify(jwtToken, process.env.JWT_KEY);
 
     req.user = decodedJwtObject;
-    console.log(jwtToken)
-    console.log(decodedJwtObject)
+    // console.log(jwtToken)
+    // console.log(decodedJwtObject)
     // console.log(jwt.verify(jwtToken, process.env.JWT_KEY)["email"]);
   } catch (err) {
     // console.log(err);
@@ -363,11 +363,14 @@ app.get('/wishlist', async function(req, res) {
 
 app.delete('/delete', async function(req,res) {
   try {
-    const { identifier, table, user } = req.body;
-    console.log(identifier, table, user);
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
+    const { identifier, table } = req.query;
+    // console.log(identifier, table, userEmail);
+    // console.log(req.params);
     const query = await req.db.query(
-      `DELETE FROM ` + table + ` WHERE identifier = :identifier AND user = :user`,
-      { table, identifier, user }
+      `DELETE FROM ` + table + ` WHERE identifier = :identifier AND user = :userEmail`,
+      { identifier, userEmail }
     );
     res.json({ success: true, message: 'Book successfully deleted', data: null });
   } catch (err) {
