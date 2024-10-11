@@ -52,16 +52,16 @@ app.use(async function(req, res, next) {
 
 // These endpoints can be reached without needing a JWT
 
-app.get('/cars', async function(req, res) {
-  try {
-    const [cars] = await req.db.query(`SELECT * FROM car WHERE deleted_flag=0`);
-    // console.log('/test endpoint reached');
-    // console.log(cars)
-    res.json(cars);
-  } catch (err) {
-    res.json({ success: false, message: err, data: null })
-  }
-});
+// app.get('/cars', async function(req, res) {
+//   try {
+//     const [cars] = await req.db.query(`SELECT * FROM car WHERE deleted_flag=0`);
+//     // console.log('/test endpoint reached');
+//     // console.log(cars)
+//     res.json(cars);
+//   } catch (err) {
+//     res.json({ success: false, message: err, data: null })
+//   }
+// });
 
 // app.use(async function(req, res, next) {
 //   try {
@@ -209,52 +209,52 @@ app.get('/log-out', async function (req, res) {
   }
 });
 
-app.post('/car', async function(req, res) {
-  try {
-    const { make, model, year } = req.body;
+// app.post('/car', async function(req, res) {
+//   try {
+//     const { make, model, year } = req.body;
   
-    const query = await req.db.query(
-      `INSERT INTO car (make, model, year) 
-       VALUES (:make, :model, :year)`,
-      {
-        make,
-        model,
-        year,
-      }
-    );
+//     const query = await req.db.query(
+//       `INSERT INTO car (make, model, year) 
+//        VALUES (:make, :model, :year)`,
+//       {
+//         make,
+//         model,
+//         year,
+//       }
+//     );
   
-    res.json({ success: true, message: 'Car successfully created', data: null });
-  } catch (err) {
-    res.json({ success: false, message: err, data: null })
-  }
-});
+//     res.json({ success: true, message: 'Car successfully created', data: null });
+//   } catch (err) {
+//     res.json({ success: false, message: err, data: null })
+//   }
+// });
 
-app.delete('/car/:id', async function(req,res) {
-  try {
-    console.log('req.params /car/:id', req.params)
-    const { id } = req.params;
-    await req.db.query(
-      `UPDATE car SET deleted_flag = 1 WHERE id = :id`,
-      { id }
-    );
-    res.json({ success: true, message: 'Car successfully deleted', data: null })
-  } catch (err) {
-    res.json({ success: false, message: err, data: null })
-  }
-});
+// app.delete('/car/:id', async function(req,res) {
+//   try {
+//     console.log('req.params /car/:id', req.params)
+//     const { id } = req.params;
+//     await req.db.query(
+//       `UPDATE car SET deleted_flag = 1 WHERE id = :id`,
+//       { id }
+//     );
+//     res.json({ success: true, message: 'Car successfully deleted', data: null })
+//   } catch (err) {
+//     res.json({ success: false, message: err, data: null })
+//   }
+// });
 
-app.put('/car', async function(req,res) {
-  try {
-    const {id, make, model, year} = req.body;
-    const [cars] = await req.db.query(
-      `UPDATE car SET make = :make, model = :model, year = :year WHERE id = :id`,
-      {id, make, model, year}
-    );
-    res.json({ id, make, model, year, success: true });
-  } catch (err) {
-    res.json({ success: false, message: err, data: null })
-  }
-});
+// app.put('/car', async function(req,res) {
+//   try {
+//     const {id, make, model, year} = req.body;
+//     const [cars] = await req.db.query(
+//       `UPDATE car SET make = :make, model = :model, year = :year WHERE id = :id`,
+//       {id, make, model, year}
+//     );
+//     res.json({ id, make, model, year, success: true });
+//   } catch (err) {
+//     res.json({ success: false, message: err, data: null })
+//   }
+// });
 
 const apiKey = process.env.API_KEY;
 
@@ -388,6 +388,21 @@ app.delete('/delete', async function(req,res) {
     res.json({ success: true, message: 'Book successfully deleted', data: null });
   } catch (err) {
     res.json({ success: false, message: err, data: null });
+  }
+});
+
+app.put('/update-user', async function(req,res) {
+  try {
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
+    const {attribute, value} = req.body;
+    const [userNew] = await req.db.query(
+      `UPDATE user SET ${attribute} = :value WHERE email = :userEmail`,
+      {value, userEmail}
+    );
+    res.json({ success: true, message: 'User updated sucessfully', data: userNew});
+  } catch (err) {
+    res.json({ success: false, message: err, data: null })
   }
 });
 
