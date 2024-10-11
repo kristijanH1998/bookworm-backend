@@ -361,6 +361,19 @@ app.get('/wishlist', async function(req, res) {
   }
 });
 
+app.get('/user-data', async function(req, res) {
+  try {
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
+    const [user] = await req.db.query(`SELECT email, user_name, first_name, last_name, date_of_birth 
+      FROM user WHERE email=:userEmail FETCH FIRST 1 ROWS ONLY`, {userEmail});
+    console.log(user)
+    res.json({success: true, message: 'User data successully returned', data: user});
+  } catch (err) {
+    res.json({ success: false, message: err, data: null })
+  }
+});
+
 app.delete('/delete', async function(req,res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
