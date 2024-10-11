@@ -396,6 +396,7 @@ app.put('/update-user', async function(req,res) {
     const jwtToken = req.headers.authorization.split(' ')[1];
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const {attribute, value} = req.body;
+    // console.log(attribute, value);
     const [userNew] = await req.db.query(
       `UPDATE user SET ${attribute} = :value WHERE email = :userEmail`,
       {value, userEmail}
