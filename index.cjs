@@ -407,4 +407,27 @@ app.put('/update-user', async function(req,res) {
   }
 });
 
+app.put('/update-password', async function(req,res) {
+  try {
+    const jwtToken = req.headers.authorization.split(' ')[1];
+    const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
+    const {oldPassword, newPassword} = req.body;
+    const [[user]] = await req.db.query(`SELECT * FROM user WHERE email = :userEmail`, {userEmail});
+    const hashedOldPassword = `${user.password}`
+    const passwordMatches = await bcrypt.compare(oldPassword, hashedOldPassword);
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    if (passwordMatches) {
+      const [passwordUpdated] = await req.db.query(
+        `UPDATE user SET password = :hashedNewPassword WHERE email = :userEmail`,
+        {hashedNewPassword, userEmail}
+      );
+      res.json({ success: true, message: 'Password updated sucessfully', data: passwordUpdated});
+    } else {
+      res.status(400).json({ error: 'Password is wrong', success: false });
+    }
+  } catch (err) {
+    res.json({ success: false, message: err, data: null })
+  }
+});
+
 app.listen(port, () => console.log(`212 API Example listening on http://localhost:${port}`));
