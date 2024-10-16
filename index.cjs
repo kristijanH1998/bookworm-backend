@@ -26,25 +26,19 @@ const pool = mysql.createPool({
 });
 
 app.use(cors(corsOptions));
-
 app.use(bodyParser.json());
-
 // app.use(express.json());
 
 app.use(async function(req, res, next) {
   try {
     req.db = await pool.getConnection();
     req.db.connection.config.namedPlaceholders = true;
-
     await req.db.query(`SET SESSION sql_mode = "TRADITIONAL"`);
     await req.db.query(`SET time_zone = '-8:00'`);
-
     await next();
-
     req.db.release();
   } catch (err) {
     console.log(err);
-
     if (req.db) req.db.release();
     throw err;
   }
@@ -74,33 +68,24 @@ app.use(async function(req, res, next) {
 //   }
 // });
 
-
-
 // Hashes the password and inserts the info into the `user` table
 app.post('/register', async function (req, res) {
   try {
     const { password, username, userIsAdmin, email, firstName, lastName, dateOfBirth } = req.body;
-
     const [[userEmail]] = await req.db.query(`SELECT email FROM user WHERE email = :email`, { email });
-    
     if (userEmail) {
       return res.status(400).json({
         error: 'Email already in use.', success: false
       });
     }
-    
     const [[userName]] = await req.db.query(`SELECT user_name FROM user WHERE user_name = :username`, { username });
-
     if (userName) {
       return res.status(400).json({
         error: 'Username already in use.', success: false
       });
     }
-
     const isAdmin = userIsAdmin ? 1 : 0;
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const [user] = await req.db.query(
       `INSERT INTO user (user_name, password, admin_flag, email, first_name, last_name, date_of_birth) 
       VALUES (:username, :hashedPassword, :userIsAdmin, :email, :firstName, :lastName, :dateOfBirth);`,
@@ -119,9 +104,7 @@ app.post('/register', async function (req, res) {
       { userId: user.insertId, ...req.body, userIsAdmin: isAdmin },
       process.env.JWT_KEY
     );
-
     // console.log('jwtEncodedUser', jwtEncodedUser);
-
     res.status(200).json({ jwt: jwtEncodedUser, success: true });
   } catch (err) {
     // console.log('error', err);
@@ -132,18 +115,14 @@ app.post('/register', async function (req, res) {
 app.post('/log-in', async function (req, res) {
   try {
     const { email, password: userEnteredPassword } = req.body;
-
     const [[user]] = await req.db.query(`SELECT * FROM user WHERE email = :email`, { email });
-
     if (!user) {
       return res.status(400).json({
         error: 'Email not found', success: false
       });
     }
-  
     const hashedPassword = `${user.password}`
     const passwordMatches = await bcrypt.compare(userEnteredPassword, hashedPassword);
-
     if (passwordMatches) {
       const payload = {
         userId: user.id,
@@ -161,23 +140,17 @@ app.post('/log-in', async function (req, res) {
   }
 });
 
-
 // Jwt verification checks to see if there is an authorization header with a valid jwt in it.
 // To hit any of the endpoints below this function, all requests have to first pass this verification 
 // middleware function before they can be processed successfully and return a response
 app.use(async function verifyJwt(req, res, next) {
   // console.log(req.headers)
   const { authorization: authHeader } = req.headers;
-  
   if (!authHeader) res.json('Invalid authorization, no authorization headers');
-  
   const [scheme, jwtToken] = authHeader.split(' ');
-
   if (scheme !== 'Bearer') res.json('Invalid authorization, invalid authorization scheme');
-
   try {
     const decodedJwtObject = jwt.verify(jwtToken, process.env.JWT_KEY);
-
     req.user = decodedJwtObject;
     // console.log(jwtToken)
     // console.log(decodedJwtObject)
@@ -189,7 +162,6 @@ app.use(async function verifyJwt(req, res, next) {
       (err.message.toUpperCase() === 'INVALID TOKEN' || 
       err.message.toUpperCase() === 'JWT EXPIRED')
     ) {
-
       req.status = err.status || 500;
       req.body = err.message;
       req.app.emit('jwt-error', err, req);
@@ -197,7 +169,6 @@ app.use(async function verifyJwt(req, res, next) {
       throw((err.status || 500), err.message);
     }
   }
-
   await next();
 });
 
@@ -212,7 +183,6 @@ app.get('/log-out', async function (req, res) {
 // app.post('/car', async function(req, res) {
 //   try {
 //     const { make, model, year } = req.body;
-  
 //     const query = await req.db.query(
 //       `INSERT INTO car (make, model, year) 
 //        VALUES (:make, :model, :year)`,
@@ -222,7 +192,6 @@ app.get('/log-out', async function (req, res) {
 //         year,
 //       }
 //     );
-  
 //     res.json({ success: true, message: 'Car successfully created', data: null });
 //   } catch (err) {
 //     res.json({ success: false, message: err, data: null })
@@ -367,7 +336,7 @@ app.get('/user-data', async function(req, res) {
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const [user] = await req.db.query(`SELECT email, user_name, first_name, last_name, date_of_birth 
       FROM user WHERE email=:userEmail FETCH FIRST 1 ROWS ONLY`, {userEmail});
-    console.log(user)
+    // console.log(user)
     res.json({success: true, message: 'User data successully returned', data: user});
   } catch (err) {
     res.json({ success: false, message: err, data: null })
