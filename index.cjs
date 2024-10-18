@@ -1,3 +1,4 @@
+//storing required packages into constant variables which will be used throughout the program
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
@@ -5,12 +6,15 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 
+//new Express application is saved locally in 'app' variable
 const app = express();
 
 require('dotenv').config();
 
+//defining a port on which the web server will listen for incoming connections
 const port = process.env.PORT;
 
+//defining CORS options
 const corsOptions = {
   origin: '*', 
   credentials: true,  
@@ -18,6 +22,7 @@ const corsOptions = {
   optionSuccessStatus: 200,
 }
 
+//defining a pool for storing connections to the database
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -28,6 +33,7 @@ const pool = mysql.createPool({
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
+//enabling named placeholders for SQL queries, and setting database values for SQL mode, time zone
 app.use(async function(req, res, next) {
   try {
     req.db = await pool.getConnection();
@@ -44,6 +50,7 @@ app.use(async function(req, res, next) {
 });
 
 // These endpoints can be reached without needing a JWT
+// Endpoint for registering a new user account on BookWorm
 // Hashes the password and inserts the info into the `user` table
 app.post('/register', async function (req, res) {
   try {
@@ -85,6 +92,7 @@ app.post('/register', async function (req, res) {
   }
 });
 
+//Endpoint for logging into BookWorm as existing user
 app.post('/log-in', async function (req, res) {
   try {
     const { email, password: userEnteredPassword } = req.body;
@@ -115,6 +123,7 @@ app.post('/log-in', async function (req, res) {
 // Jwt verification checks to see if there is an authorization header with a valid jwt in it.
 // To hit any of the endpoints below this function, all requests have to first pass this verification 
 // middleware function before they can be processed successfully and return a response
+// Below middleware function performs jwt verification for incoming requests from frontend
 app.use(async function verifyJwt(req, res, next) {
   const { authorization: authHeader } = req.headers;
   if (!authHeader) res.json('Invalid authorization, no authorization headers');
@@ -136,9 +145,10 @@ app.use(async function verifyJwt(req, res, next) {
       throw((err.status || 500), err.message);
     }
   }
-  next();
+  await next();
 });
 
+// Endpoint for logging out of BookWorm
 app.get('/log-out', async function (req, res) {
   try {
     res.status(200).json({ message: "Successfully signed out.", success: true });
@@ -147,8 +157,10 @@ app.get('/log-out', async function (req, res) {
   }
 });
 
+// Saving the Google Books API key into apiKey variable
 const apiKey = process.env.API_KEY;
 
+// Endpoint for searching books in Google Books database and fetching them back to BookWorm
 app.get('/search-books', async function (req, res) {
   try {
     const searchParams = req.query;
@@ -188,6 +200,7 @@ app.get('/search-books', async function (req, res) {
   }
 });
 
+// Endpoint allowing the user to put selected books in appropriate category tables (favorites, wishlist, finished reading)
 app.post('/add-to-list', async function(req, res) {
   try {
     const { title, author, publisher, year, identifier, thumbnail, table} = req.body.data;
@@ -208,6 +221,7 @@ app.post('/add-to-list', async function(req, res) {
   }
 });
 
+// Endpoint for fetching favorite books from the database
 app.get('/fav-books', async function(req, res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
@@ -219,6 +233,7 @@ app.get('/fav-books', async function(req, res) {
   }
 });
 
+// Endpoint for fetching books the user finished reading from the database
 app.get('/finished-books', async function(req, res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
@@ -230,6 +245,7 @@ app.get('/finished-books', async function(req, res) {
   }
 });
 
+// Endpoint for fetching wishlist books from the database
 app.get('/wishlist', async function(req, res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
@@ -241,6 +257,7 @@ app.get('/wishlist', async function(req, res) {
   }
 });
 
+// Endpoint for fetching user's account data
 app.get('/user-data', async function(req, res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
@@ -253,6 +270,7 @@ app.get('/user-data', async function(req, res) {
   }
 });
 
+// Endpoint for deleting saved books from one of the three category tables (favorite, wishlist, finished reading)
 app.delete('/delete', async function(req,res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
@@ -268,6 +286,7 @@ app.delete('/delete', async function(req,res) {
   }
 });
 
+// Endpoint for updating user account attributes
 app.put('/update-user', async function(req,res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
@@ -283,6 +302,7 @@ app.put('/update-user', async function(req,res) {
   }
 });
 
+// Endpoint for updating user's current password with provided new password
 app.put('/update-password', async function(req,res) {
   try {
     const jwtToken = req.headers.authorization.split(' ')[1];
@@ -306,4 +326,5 @@ app.put('/update-password', async function(req,res) {
   }
 });
 
+// Allowing the Express app to listen to requests coming to port specified in .env file
 app.listen(port, () => console.log(`212 API Example listening on http://localhost:${port}`));
