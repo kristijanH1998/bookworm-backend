@@ -27,7 +27,6 @@ const pool = mysql.createPool({
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
-// app.use(express.json());
 
 app.use(async function(req, res, next) {
   try {
@@ -45,29 +44,6 @@ app.use(async function(req, res, next) {
 });
 
 // These endpoints can be reached without needing a JWT
-
-// app.get('/cars', async function(req, res) {
-//   try {
-//     const [cars] = await req.db.query(`SELECT * FROM car WHERE deleted_flag=0`);
-//     // console.log('/test endpoint reached');
-//     // console.log(cars)
-//     res.json(cars);
-//   } catch (err) {
-//     res.json({ success: false, message: err, data: null })
-//   }
-// });
-
-// app.use(async function(req, res, next) {
-//   try {
-//     console.log('Middleware after the get /cars');
-  
-//     await next();
-
-//   } catch (err) {
-
-//   }
-// });
-
 // Hashes the password and inserts the info into the `user` table
 app.post('/register', async function (req, res) {
   try {
@@ -99,15 +75,12 @@ app.post('/register', async function (req, res) {
         dateOfBirth
       }
     );
-
     const jwtEncodedUser = jwt.sign(
       { userId: user.insertId, ...req.body, userIsAdmin: isAdmin },
       process.env.JWT_KEY
     );
-    // console.log('jwtEncodedUser', jwtEncodedUser);
     res.status(200).json({ jwt: jwtEncodedUser, success: true });
   } catch (err) {
-    // console.log('error', err);
     res.status(400).json({ error: 'Registration failed. Please try again.', success: false });
   }
 });
@@ -135,7 +108,6 @@ app.post('/log-in', async function (req, res) {
       res.status(400).json({ error: 'Password is wrong', success: false });
     }
   } catch (err) {
-    // console.log('Error in /authenticate', err);
     res.status(400).json({ err, success: false });
   }
 });
@@ -144,7 +116,6 @@ app.post('/log-in', async function (req, res) {
 // To hit any of the endpoints below this function, all requests have to first pass this verification 
 // middleware function before they can be processed successfully and return a response
 app.use(async function verifyJwt(req, res, next) {
-  // console.log(req.headers)
   const { authorization: authHeader } = req.headers;
   if (!authHeader) res.json('Invalid authorization, no authorization headers');
   const [scheme, jwtToken] = authHeader.split(' ');
@@ -152,11 +123,7 @@ app.use(async function verifyJwt(req, res, next) {
   try {
     const decodedJwtObject = jwt.verify(jwtToken, process.env.JWT_KEY);
     req.user = decodedJwtObject;
-    // console.log(jwtToken)
-    // console.log(decodedJwtObject)
-    // console.log(jwt.verify(jwtToken, process.env.JWT_KEY)["email"]);
   } catch (err) {
-    // console.log(err);
     if (
       err.message && 
       (err.message.toUpperCase() === 'INVALID TOKEN' || 
@@ -169,7 +136,7 @@ app.use(async function verifyJwt(req, res, next) {
       throw((err.status || 500), err.message);
     }
   }
-  await next();
+  next();
 });
 
 app.get('/log-out', async function (req, res) {
@@ -180,66 +147,15 @@ app.get('/log-out', async function (req, res) {
   }
 });
 
-// app.post('/car', async function(req, res) {
-//   try {
-//     const { make, model, year } = req.body;
-//     const query = await req.db.query(
-//       `INSERT INTO car (make, model, year) 
-//        VALUES (:make, :model, :year)`,
-//       {
-//         make,
-//         model,
-//         year,
-//       }
-//     );
-//     res.json({ success: true, message: 'Car successfully created', data: null });
-//   } catch (err) {
-//     res.json({ success: false, message: err, data: null })
-//   }
-// });
-
-// app.delete('/car/:id', async function(req,res) {
-//   try {
-//     console.log('req.params /car/:id', req.params)
-//     const { id } = req.params;
-//     await req.db.query(
-//       `UPDATE car SET deleted_flag = 1 WHERE id = :id`,
-//       { id }
-//     );
-//     res.json({ success: true, message: 'Car successfully deleted', data: null })
-//   } catch (err) {
-//     res.json({ success: false, message: err, data: null })
-//   }
-// });
-
-// app.put('/car', async function(req,res) {
-//   try {
-//     const {id, make, model, year} = req.body;
-//     const [cars] = await req.db.query(
-//       `UPDATE car SET make = :make, model = :model, year = :year WHERE id = :id`,
-//       {id, make, model, year}
-//     );
-//     res.json({ id, make, model, year, success: true });
-//   } catch (err) {
-//     res.json({ success: false, message: err, data: null })
-//   }
-// });
-
 const apiKey = process.env.API_KEY;
 
 app.get('/search-books', async function (req, res) {
   try {
     const searchParams = req.query;
-    // console.log(searchParams)
-    // console.log(searchParams['search-terms'])
     let response;
     // formatting the request body content by replacing whitespaces with '+' symbols to make it compatible
     // with the URL syntax
     searchParams['search-terms'] = searchParams['search-terms'].replace(/ /g, '+');
-    // console.log(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
-    //     `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
-    //     `(title,authors,industryIdentifiers,categories,publisher,publishedDate,` + 
-    //     `description,imageLinks,pageCount,language)`);
     if(searchParams['criteria'] === 'author' || searchParams['criteria'] === 'title') {
       response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=in${searchParams['criteria']}:` + 
         `${searchParams['search-terms']}&printType=books&filter=full&fields=items/id,items/volumeInfo` + 
@@ -266,7 +182,6 @@ app.get('/search-books', async function (req, res) {
       }) 
     }
     const data = await response.json();
-    // console.log(JSON.stringify(data, null, 2))
     res.status(200).json({ message: "Search successful.", success: true, data: data });
   } catch (err) {
     res.status(400).json({ err, success: false });
@@ -279,8 +194,6 @@ app.post('/add-to-list', async function(req, res) {
     //two lines below take the JWT token from request authorization header, and then extract user email from the JWT
     const jwtToken = req.headers.authorization.split(' ')[1];
     const user = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
-    // console.log(title, author, publisher, year, identifier, thumbnail, table);
-    //console.log(table);
     //name of the table into which the record will be inserted equals the string 'table' received from frontend
     const query = await req.db.query(
       `INSERT INTO ` + table + ` (title, author, publisher, year, identifier, thumbnail, user) 
@@ -300,7 +213,6 @@ app.get('/fav-books', async function(req, res) {
     const jwtToken = req.headers.authorization.split(' ')[1];
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const [favorites] = await req.db.query(`SELECT * FROM favorite WHERE user=:userEmail`, {userEmail});
-    // console.log(favorites)
     res.json({ success: true, message: 'Favorites successfully returned', data: favorites });
   } catch (err) {
     res.json({ success: false, message: err, data: null })
@@ -312,7 +224,6 @@ app.get('/finished-books', async function(req, res) {
     const jwtToken = req.headers.authorization.split(' ')[1];
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const [finishedBooks] = await req.db.query(`SELECT * FROM finished_reading WHERE user=:userEmail`, {userEmail});
-    // console.log(finishedBooks)
     res.json({ success: true, message: 'Previously read books successfully returned', data: finishedBooks });
   } catch (err) {
     res.json({ success: false, message: err, data: null })
@@ -336,7 +247,6 @@ app.get('/user-data', async function(req, res) {
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const [user] = await req.db.query(`SELECT email, user_name, first_name, last_name, date_of_birth 
       FROM user WHERE email=:userEmail FETCH FIRST 1 ROWS ONLY`, {userEmail});
-    // console.log(user)
     res.json({success: true, message: 'User data successully returned', data: user});
   } catch (err) {
     res.json({ success: false, message: err, data: null })
@@ -348,8 +258,6 @@ app.delete('/delete', async function(req,res) {
     const jwtToken = req.headers.authorization.split(' ')[1];
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const { identifier, table } = req.query;
-    // console.log(identifier, table, userEmail);
-    // console.log(req.params);
     const query = await req.db.query(
       `DELETE FROM ` + table + ` WHERE identifier = :identifier AND user = :userEmail`,
       { identifier, userEmail }
@@ -365,7 +273,6 @@ app.put('/update-user', async function(req,res) {
     const jwtToken = req.headers.authorization.split(' ')[1];
     const userEmail = jwt.verify(jwtToken, process.env.JWT_KEY)["email"];
     const {attribute, value} = req.body;
-    // console.log(attribute, value);
     const [userNew] = await req.db.query(
       `UPDATE user SET ${attribute} = :value WHERE email = :userEmail`,
       {value, userEmail}
