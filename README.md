@@ -80,7 +80,7 @@ authorization error saying the authorization header content was undefined. This 
 following rules for POST request type, stating that Authorization header must come after the 
 data parameter, unlike in GET type requests.
 
-#### Features to be implemented in the future
+#### Future Work
 * Due to OpenAI API not offering free tier for developers, I decided to abandon my original idea of implementing an AI feature that would answer user's questions about a text they are reading. If I find an AI query API that is offered for free or simply requires an API key to process requests, I will try to implement such a feature in the future.
 * BookWorm should have a forum page where users can leave their comments on books they read and give them a rating. This was also part of my original idea for the app, but due to time constraints I had to postpone it for future development.
 * A notebook window could be implemented on the Home (Search Books) page, with a button next to the Embedded Viewer that would open a modal for the user to write their notes into while reading the book. Although part of the original functional outline, this feature was never attempted, even though it could be somewhat easily implemented with Bootstrap elements. 
