@@ -111,13 +111,43 @@ difficult to solve bugs which slowed the project down. But I think that learning
 important in the start of one's career, and challenges should be welcomed, not feared.
 
 ## How to Run the Project
-
-
 ### Backend Installation
+1. Download and install VS Code editor [here](https://code.visualstudio.com/download)
+2. Use the terminal in VS Code (Bash, PowerShell, depending on the OS) to download and install Node.js, find instructions [here](https://nodejs.org/en/download/package-manager)
+3. Use VS Code 'Extensions' page to search for and install latest version of 'HTML CSS Support' dependency (CSS Intellisense for HTML)
+4. (optional) Use VS Code 'Extensions' page to search for and install latest version of 'JavaScript (ES6) code snippets'
+5. Use VS Code 'Extensions' page to search for and install latest version of 'ESLint' to integrate ESLint JavaScript into your code editor
+6. Follow instructions on [this](https://github.com/git-guides/install-git) link to install Git
+7. Choose the location (directory) for the project repository, navigate to it with 'cd [directory-name]' terminal command and inside of it clone the project repository by running the command 'git clone https://github.com/kristijanH1998/bookworm-backend.git' in your terminal
+8. Run the command 'npm i' to install all required dependencies
+9. Install MySQL. for Windows, follow instructions on [this link](https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html); for Linux, follow instructions on [this link](https://dev.mysql.com/doc/refman/8.0/en/linux-installation.html)
+10. Install MySQL Workbench. Follow instructions from [here](https://dev.mysql.com/doc/workbench/en/wb-installing.html)
+11. Connect to the MySQL Server with MySQL Client. See instructions [here](https://dev.mysql.com/doc/mysql-getting-started/en/#mysql-getting-started-connecting)
+12. Launch MySQL Workbench and create a new MySQL Connection: [tutorial](https://dev.mysql.com/doc/workbench/en/wb-getting-started-tutorial-create-connection.html) 
+13. Obtain a Google Books API key. Check [here](https://developers.google.com/books/docs/v1/using#APIKey) for more on how this is done.
+14. Create a .env file in the same directory where you cloned project repository from GitHub, and paste the following lines into the .env file:
+```
+DB_HOST         = localhost
+DB_USER         = root
+DB_PASSWORD     = [password you use for your database, entered in step 12 when new MySQL Workbench connection was created]
+DB_NAME         = [name of your MySQL database]
+DB_PORT         = [TCP/IP port of your database server host]
 
+JWT_KEY         = [the signature/key which will be used for JWT encoding]
+
+PORT            = [port of your local backend development server which will receive requests from frontend, usually 3000]  
+
+API_KEY         = [your Google Books API key]
+```
+Don't forget to also create a .gitignore file in the project repository directory, and paste the following into it to prevent accidentally commiting your Google Books API key to your public GitHub repository:
+```
+node_modules
+.env
+```
+15. Run the backend server by typing 'nodemon index.cjs' in the terminal (make sure you are in the backend repository directory). After this is done, proceed to running the frontend for BookWorm: [Run BookWorm Frontend](https://github.com/kristijanH1998/bookworm?tab=readme-ov-file#how-to-run-the-project) 
 
 ## How to Use the Project
-* Instructions on how this app should be used can be found in the project's Frontend repository[here](https://github.com/kristijanH1998/bookworm?tab=readme-ov-file#how-to-use-the-project)
+* Instructions on how this app should be used can be found in the project's Frontend repository [here](https://github.com/kristijanH1998/bookworm?tab=readme-ov-file#how-to-use-the-project)
 
 ## Documentation
 * The repository of the Frontend part of the project can be found [here](https://github.com/kristijanH1998/bookworm.git)
