@@ -21,7 +21,7 @@ BookWorm - full-stack solo project for Bay Valley Tech Code Academy
 * React Router is used on the frontend for page routing, Axios HTTP client library is used for sending REST API requests to the backend web server, while Google Books API receives requests from the backend, which backend receives from the frontend.
 * The backend handles data transfer to and from the MySQL relational database managed with MySQL Workbench. Backend utilizes Express.js as server framework, bcrypt library for password hashing, CORS for application integration, JWT keys for authentication, and body-parser libary for HTTP request parsing.
 
-#### Challenges faced during development (during Frontend development)
+#### Challenges faced during development (on Frontend)
 * A particularly challenging part of development was including Google Books Embedded API viewer canvas on the Search Books page: TypeScript compiler initially threw errors indicating it does not recognize 'google' in 'google.books.load();' with messages 'Cannot find name 'google'' and 'google.books.load is not a function', and other errors with 'google' object's associated functions and classes ('.books' class, 'load()' method, etc.). 
 This issue was mitigated by adding the following lines: <br>
 ``` 
@@ -120,7 +120,7 @@ important in the start of one's career, and challenges should be welcomed, not f
 6. Follow instructions on [this](https://github.com/git-guides/install-git) link to install Git
 7. Choose the location (directory) for the project repository, navigate to it with 'cd [directory-name]' terminal command and inside of it clone the project repository by running the command 'git clone https://github.com/kristijanH1998/bookworm-backend.git' in your terminal
 8. Run the command 'npm i' to install all required dependencies
-9. Install MySQL. for Windows, follow instructions on [this link](https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html); for Linux, follow instructions on [this link](https://dev.mysql.com/doc/refman/8.0/en/linux-installation.html)
+9. Install MySQL for Windows, follow instructions on [this link](https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html); for Linux, follow instructions on [this link](https://dev.mysql.com/doc/refman/8.0/en/linux-installation.html)
 10. Install MySQL Workbench. Follow instructions from [here](https://dev.mysql.com/doc/workbench/en/wb-installing.html)
 11. Connect to the MySQL Server with MySQL Client. See instructions [here](https://dev.mysql.com/doc/mysql-getting-started/en/#mysql-getting-started-connecting)
 12. Launch MySQL Workbench and create a new MySQL Connection: [tutorial](https://dev.mysql.com/doc/workbench/en/wb-getting-started-tutorial-create-connection.html) 
