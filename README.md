@@ -153,6 +153,7 @@ node_modules
 * Instructions on how this app should be used can be found in the project's Frontend repository [here](https://github.com/kristijanH1998/bookworm?tab=readme-ov-file#how-to-use-the-project)
 
 ## Documentation
+* The Demo Recording of the project can be found [here](https://drive.google.com/file/d/1DeE8MDEi9lq2i-ZW6j3mNCQl4SlSkJbm/view?usp=sharing)
 * The repository of the Frontend part of the project can be found [here](https://github.com/kristijanH1998/bookworm.git)
 * Developer log for this project can be found [here](https://docs.google.com/document/d/1ieDdM0txky0wxEZ3w_PPIUdPI_pAFzgeKAzslnP2bsw/edit?usp=sharing)
 * The Wireframes I made in Figma for this project can be found by clicking on [this link](https://www.figma.com/design/HyaA7HkQP4oVYABsiWcimn/BookWorm-Wireframe?node-id=0-1&t=0i8CE6GfiTgFVYkF-1)
